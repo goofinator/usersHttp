@@ -16,7 +16,7 @@ func Run(iniData *startup.IniData) {
 	router := mux.NewRouter()
 
 	db := repositories.New(iniData)
-	db.Close()
+	defer db.Close()
 
 	handleRoutes(router, db)
 	http.Handle("/", router)
