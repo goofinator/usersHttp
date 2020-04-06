@@ -51,7 +51,7 @@ func (storage *Storage) Close() {
 }
 
 // AddUser adds the user to the storage
-func (storage *Storage) AddUser(user *model.User) error {
+func (storage *Storage) AddUser(user *model.User) (err error) {
 	tx, err := storage.db.Begin()
 	if err != nil {
 		return err
@@ -64,22 +64,22 @@ func (storage *Storage) AddUser(user *model.User) error {
 }
 
 // DeleteUser deletes the user with specified id from the storage
-func (storage *Storage) DeleteUser(id int) error {
+func (storage *Storage) DeleteUser(id int) (err error) {
 	return nil
 }
 
 // EditUser replaces data of the user with specified id with user value
-func (storage *Storage) EditUser(id int, user *model.User) error {
+func (storage *Storage) EditUser(id int, user *model.User) (err error) {
 	return nil
 }
 
 // GetUsers returns all users in the storage
-func (storage *Storage) GetUsers() []*model.User {
-	users := make([]*model.User, 0)
-	return users
+func (storage *Storage) GetUsers() (users []*model.User, err error) {
+	users = make([]*model.User, 0)
+	return users, nil
 }
 
-func createTable(db *sqlx.DB, name string) error {
+func createTable(db *sqlx.DB, name string) (err error) {
 	tx, err := db.Begin()
 	if err != nil {
 		return err
