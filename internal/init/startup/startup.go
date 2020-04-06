@@ -2,6 +2,8 @@ package startup
 
 import (
 	"flag"
+	"fmt"
+	"os"
 )
 
 // Default values of IniData fields
@@ -12,7 +14,7 @@ const (
 	DefaultDBPort       = 5432
 	DefaultUserName     = "postgres"
 	DefaultUserPassword = ""
-	DefaultTableName    = "postgres"
+	DefaultTableName    = "httpusers"
 )
 
 // IniData structure stores initial data to start a service
@@ -39,5 +41,17 @@ func GetIniData() *IniData {
 		"table name in DB to operate (it will b e created if not exists)")
 
 	flag.Parse()
+
+	if len(iniData.UserPassword) < 1 {
+		usage()
+		os.Exit(-1)
+	}
+
 	return iniData
+}
+
+var usage = func() {
+	fmt.Fprintf(os.Stderr, "Password mast be provided.\nUsage of %s:\n", os.Args[0])
+
+	flag.PrintDefaults()
 }
