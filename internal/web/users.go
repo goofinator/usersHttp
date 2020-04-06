@@ -29,7 +29,7 @@ func Run(iniData *startup.IniData) {
 
 func handleRoutes(router *mux.Router, db repositories.Storager) {
 	router.HandleFunc("/users", func(w http.ResponseWriter, r *http.Request) {
-		controllers.AddUserHandler(w, r)
+		controllers.AddUserHandler(w, r, db)
 	}).Methods("POST")
 
 	router.HandleFunc("/users", func(w http.ResponseWriter, r *http.Request) {
