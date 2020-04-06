@@ -8,13 +8,16 @@ import (
 	"github.com/goofinator/usersHttp/internal/init/startup"
 	"github.com/goofinator/usersHttp/internal/web/controllers"
 	"github.com/gorilla/mux"
+	"github.com/jmoiron/sqlx"
 )
 
 // Run starts the web service
 func Run(iniData *startup.IniData) {
 	router := mux.NewRouter()
 
-	handleRoutes(router)
+	db := startup.InitDB(iniData)
+
+	handleRoutes(router, db)
 	http.Handle("/", router)
 
 	err := http.ListenAndServe(fmt.Sprintf(":%d", iniData.Port), nil)
@@ -23,7 +26,7 @@ func Run(iniData *startup.IniData) {
 	}
 }
 
-func handleRoutes(router *mux.Router) {
+func handleRoutes(router *mux.Router, db *sqlx.DB) {
 	router.HandleFunc("/users", func(w http.ResponseWriter, r *http.Request) {
 		controllers.AddUserHandler(w, r)
 	}).Methods("POST")
