@@ -1,12 +1,12 @@
 package main
 
 import (
-	"fmt"
-
-	"github.com/goofinator/usersHttp/init/startup"
+	"github.com/goofinator/usersHttp/internal/init/startup"
+	"github.com/goofinator/usersHttp/internal/web"
 )
 
 func main() {
 	iniData := startup.GetIniData()
-	fmt.Printf("%#v\n", iniData)
+
+	web.Run(iniData)
 }
