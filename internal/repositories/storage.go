@@ -49,6 +49,14 @@ func (storage *Storage) Close() {
 
 // AddUser adds the user to the storage
 func (storage *Storage) AddUser(user *model.User) error {
+	tx, err := storage.Begin()
+	if err != nil {
+		return err
+	}
+	defer func() {
+		err = closeTransaction(tx, err)
+	}()
+
 	return nil
 }
 
@@ -77,17 +85,17 @@ func createTable(db *sqlx.DB, name string) error {
 		err = closeTransaction(tx, err)
 	}()
 
-	_, err = tx.Exec(fmt.Sprintf(`CREATE TABLE IF NOT EXISTS %s (
+	result, err := tx.Exec(fmt.Sprintf(`CREATE TABLE IF NOT EXISTS %s (
 	id SERIAL PRIMARY KEY,
 	name text NOT NULL CHECK(length(name)>0),
 	lastname text NOT NULL CHECK(length(lastname)>0),
 	age smallint NOT NULL CHECK(age>0),
 	birthdate timestamp with time zone NOT NULL
 	)`, name))
-	if err != nil {
+
+	if err := checkResult(result, err); err != nil {
 		return err
 	}
-
 	return nil
 }
 
@@ -105,4 +113,18 @@ func closeTransaction(tx *sql.Tx, err error) error {
 		err = cmtErr
 	}
 	return err
+}
+
+func checkResult(result sql.Result, err error) error {
+	if err != nil {
+		return err
+	}
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		return err
+	}
+	if rowsAffected != 1 {
+		return fmt.Errorf("unexpected number of rows affected: %d", rowsAffected)
+	}
+	return nil
 }
