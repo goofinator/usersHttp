@@ -13,12 +13,14 @@ import (
 	_ "github.com/jackc/pgx/v4/stdlib"
 )
 
-// Storager interface wraps Close method
+// Storager interface wraps Close, AddUser, DeleteUser
+// EditUser and GetUsers methods
 type Storager interface {
 	Close()
 	AddUser(user *model.User) error
 	DeleteUser(id int) error
 	EditUser(id int, user *model.User) error
+	GetUsers() (users []*model.User, err error)
 }
 
 // Storage is a data storage based on *sqlx.DB
@@ -60,22 +62,92 @@ func (storage *Storage) AddUser(user *model.User) (err error) {
 		err = closeTransaction(tx, err)
 	}()
 
+	request := fmt.Sprintf(`INSERT INTO %s 	(id, name, lastname, age, birthdate) 
+	VALUES(DEFAULT,$1,$2,$3,$4)`, storage.iniData.TableName)
+	result, err := tx.Exec(request, user.Name, user.Lastname, user.Age, user.Birthdate)
+
+	if err := checkResult(1, result, err); err != nil {
+		return err
+	}
+
 	return nil
 }
 
 // DeleteUser deletes the user with specified id from the storage
 func (storage *Storage) DeleteUser(id int) (err error) {
+	tx, err := storage.db.Begin()
+	if err != nil {
+		return err
+	}
+	defer func() {
+		err = closeTransaction(tx, err)
+	}()
+
+	request := fmt.Sprintf("DELETE FROM %s WHERE id=$1", storage.iniData.TableName)
+	result, err := tx.Exec(request, id)
+
+	if err := checkResult(1, result, err); err != nil {
+		return err
+	}
 	return nil
 }
 
 // EditUser replaces data of the user with specified id with user value
 func (storage *Storage) EditUser(id int, user *model.User) (err error) {
+	tx, err := storage.db.Begin()
+	if err != nil {
+		return err
+	}
+	defer func() {
+		err = closeTransaction(tx, err)
+	}()
+
+	request := fmt.Sprintf(`UPDATE %s SET name=$1, lastname=$2, age=$3, birthdate=$4
+	WHERE id=$5`, storage.iniData.TableName)
+	result, err := tx.Exec(request, user.Name, user.Lastname, user.Age, user.Birthdate, id)
+
+	if err := checkResult(1, result, err); err != nil {
+		return err
+	}
 	return nil
 }
 
 // GetUsers returns all users in the storage
 func (storage *Storage) GetUsers() (users []*model.User, err error) {
-	users = make([]*model.User, 0)
+	request := fmt.Sprintf("SELECT id, name, lastname, age, birthdate FROM %s ORDER BY ID",
+		storage.iniData.TableName)
+	rows, err := storage.db.Query(request)
+
+	users, err = processRows(rows, err)
+	if err != nil {
+		return nil, err
+	}
+
+	return users, nil
+}
+
+func processRows(rows *sql.Rows, err error) ([]*model.User, error) {
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	users := make([]*model.User, 0)
+
+	for rows.Next() {
+		user := &model.User{}
+		err := rows.Scan(&user.ID, &user.Name, &user.Lastname, &user.Age, &user.Birthdate)
+		if err != nil {
+			return nil, err
+		}
+		users = append(users, user)
+	}
+
+	err = rows.Err()
+	if err != nil {
+		return nil, err
+	}
+
 	return users, nil
 }
 
