@@ -22,7 +22,10 @@ type Storager interface {
 }
 
 // Storage is a data storage based on *sqlx.DB
-type Storage sqlx.DB
+type Storage struct {
+	db      *sqlx.DB
+	iniData *startup.IniData
+}
 
 // New returns new data storage based on *sqlx.DB
 func New(iniData *startup.IniData) Storager {
@@ -38,18 +41,18 @@ func New(iniData *startup.IniData) Storager {
 		log.Fatalf("unexpected error on createTable: %s", err)
 	}
 
-	return (*Storage)(db)
+	return &Storage{db: db, iniData: iniData}
 
 }
 
 // Close closes the storage when it is not needed any more
 func (storage *Storage) Close() {
-	(*sqlx.DB)(storage).Close()
+	storage.db.Close()
 }
 
 // AddUser adds the user to the storage
 func (storage *Storage) AddUser(user *model.User) error {
-	tx, err := storage.Begin()
+	tx, err := storage.db.Begin()
 	if err != nil {
 		return err
 	}
@@ -93,7 +96,7 @@ func createTable(db *sqlx.DB, name string) error {
 	birthdate timestamp with time zone NOT NULL
 	)`, name))
 
-	if err := checkResult(result, err); err != nil {
+	if err := checkResult(0, result, err); err != nil {
 		return err
 	}
 	return nil
@@ -115,7 +118,7 @@ func closeTransaction(tx *sql.Tx, err error) error {
 	return err
 }
 
-func checkResult(result sql.Result, err error) error {
+func checkResult(needRows int, result sql.Result, err error) error {
 	if err != nil {
 		return err
 	}
@@ -123,7 +126,7 @@ func checkResult(result sql.Result, err error) error {
 	if err != nil {
 		return err
 	}
-	if rowsAffected != 1 {
+	if rowsAffected != int64(needRows) {
 		return fmt.Errorf("unexpected number of rows affected: %d", rowsAffected)
 	}
 	return nil
