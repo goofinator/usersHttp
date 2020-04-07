@@ -11,6 +11,7 @@ import (
 
 	"github.com/goofinator/usersHttp/internal/repositories"
 	"github.com/goofinator/usersHttp/internal/repositories/mocks"
+	"github.com/goofinator/usersHttp/internal/web/model"
 )
 
 var someError = errors.New("some error")
@@ -30,12 +31,13 @@ var (
 )
 
 type commonTestCase struct {
-	name       string
-	jsonStr    []byte
-	url        string
-	wantStatus int
-	wantBodyRE string
-	mockRet    error
+	name         string
+	jsonStr      []byte
+	url          string
+	wantStatus   int
+	wantBodyRE   string
+	mockRetErr   error
+	mockRetUsers []*model.User
 }
 
 func handleRequest(req *http.Request, db *mocks.MockStorager,

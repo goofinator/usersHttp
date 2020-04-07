@@ -16,28 +16,28 @@ var testsDeleteUser = []*commonTestCase{
 		url:        "/users/:A",
 		wantStatus: http.StatusUnprocessableEntity,
 		wantBodyRE: "^error on IDFromURL",
-		mockRet:    nil,
+		mockRetErr: nil,
 	},
 	{
 		name:       "wrong URL's id format 2",
 		url:        "/users/1",
 		wantStatus: http.StatusUnprocessableEntity,
 		wantBodyRE: "^error on IDFromURL",
-		mockRet:    nil,
+		mockRetErr: nil,
 	},
 	{
 		name:       "db error",
 		url:        "/users/:1",
 		wantStatus: http.StatusInternalServerError,
 		wantBodyRE: "^error on DeleteUser: some error",
-		mockRet:    someError,
+		mockRetErr: someError,
 	},
 	{
 		name:       "success",
 		url:        "/users/:1",
 		wantStatus: http.StatusOK,
 		wantBodyRE: "",
-		mockRet:    nil,
+		mockRetErr: nil,
 	},
 }
 
@@ -58,7 +58,6 @@ func TestDeleteUserHandler(t *testing.T) {
 			rr := handleRequest(req, db, DeleteUserHandler)
 
 			checkStatus(t, test.wantStatus, rr.Code)
-
 			checkBodyByRE(t, test.wantBodyRE, rr.Body.String())
 		})
 	}
@@ -70,5 +69,5 @@ func setDeleteUserExpectations(db *mocks.MockStorager, test *commonTestCase) {
 	}
 
 	db.EXPECT().
-		DeleteUser(1).Return(test.mockRet)
+		DeleteUser(1).Return(test.mockRetErr)
 }

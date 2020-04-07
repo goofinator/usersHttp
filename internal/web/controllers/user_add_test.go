@@ -18,21 +18,21 @@ var testsAddUser = []*commonTestCase{
 		jsonStr:    jsonInvalidStr,
 		wantStatus: http.StatusUnprocessableEntity,
 		wantBodyRE: "^error on json\\.Decode: parsing time",
-		mockRet:    nil,
+		mockRetErr: nil,
 	},
 	{
 		name:       "db error",
 		jsonStr:    jsonValidStr,
 		wantStatus: http.StatusInternalServerError,
 		wantBodyRE: "^error on AddUser: some error",
-		mockRet:    someError,
+		mockRetErr: someError,
 	},
 	{
 		name:       "success",
 		jsonStr:    jsonValidStr,
 		wantStatus: http.StatusOK,
 		wantBodyRE: "^$",
-		mockRet:    nil,
+		mockRetErr: nil,
 	},
 }
 
@@ -44,7 +44,7 @@ func TestAddUserHandler(t *testing.T) {
 			defer controller.Finish()
 			db := mocks.NewMockStorager(controller)
 
-			setAddUserExpectations(db, test)
+			setAddUserExpectations(t, db, test)
 
 			req, err := http.NewRequest("POST", "/users", bytes.NewBuffer(test.jsonStr))
 			if err != nil {
@@ -54,20 +54,21 @@ func TestAddUserHandler(t *testing.T) {
 			rr := handleRequest(req, db, AddUserHandler)
 
 			checkStatus(t, test.wantStatus, rr.Code)
-
 			checkBodyByRE(t, test.wantBodyRE, rr.Body.String())
 		})
 	}
 }
 
-func setAddUserExpectations(db *mocks.MockStorager, test *commonTestCase) {
+func setAddUserExpectations(t *testing.T, db *mocks.MockStorager, test *commonTestCase) {
 	if test.name == "broken json" {
 		return
 	}
 
 	var user model.User
-	json.Unmarshal(jsonValidStr, &user)
+	if err := json.Unmarshal(jsonValidStr, &user); err != nil {
+		t.Fatalf("unexpected fail of Unmarshal: %s", err)
+	}
 
 	db.EXPECT().
-		AddUser(&user).Return(test.mockRet)
+		AddUser(&user).Return(test.mockRetErr)
 }

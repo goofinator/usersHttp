@@ -20,7 +20,7 @@ var testsEditUser = []*commonTestCase{
 		jsonStr:    jsonValidStr,
 		wantStatus: http.StatusUnprocessableEntity,
 		wantBodyRE: "^error on IDFromURL",
-		mockRet:    nil,
+		mockRetErr: nil,
 	},
 	{
 		name:       "wrong URL's id format 2",
@@ -28,7 +28,7 @@ var testsEditUser = []*commonTestCase{
 		jsonStr:    jsonValidStr,
 		wantStatus: http.StatusUnprocessableEntity,
 		wantBodyRE: "^error on IDFromURL",
-		mockRet:    nil,
+		mockRetErr: nil,
 	},
 	{
 		name:       "broken json",
@@ -36,7 +36,7 @@ var testsEditUser = []*commonTestCase{
 		jsonStr:    jsonInvalidStr,
 		wantStatus: http.StatusUnprocessableEntity,
 		wantBodyRE: "^error on json\\.Decode: parsing time",
-		mockRet:    nil,
+		mockRetErr: nil,
 	},
 	{
 		name:       "db error",
@@ -44,7 +44,7 @@ var testsEditUser = []*commonTestCase{
 		jsonStr:    jsonValidStr,
 		wantStatus: http.StatusInternalServerError,
 		wantBodyRE: "error on EditUser: some error",
-		mockRet:    someError,
+		mockRetErr: someError,
 	},
 	{
 		name:       "success",
@@ -52,7 +52,7 @@ var testsEditUser = []*commonTestCase{
 		jsonStr:    jsonValidStr,
 		wantStatus: http.StatusOK,
 		wantBodyRE: "",
-		mockRet:    nil,
+		mockRetErr: nil,
 	},
 }
 
@@ -64,7 +64,7 @@ func TestEditUserHandler(t *testing.T) {
 			defer controller.Finish()
 			db := mocks.NewMockStorager(controller)
 
-			setEditUserExpectations(db, test)
+			setEditUserExpectations(t, db, test)
 
 			req, err := http.NewRequest("PUT", test.url, bytes.NewBuffer(test.jsonStr))
 			if err != nil {
@@ -73,20 +73,21 @@ func TestEditUserHandler(t *testing.T) {
 			rr := handleRequest(req, db, EditUserHandler)
 
 			checkStatus(t, test.wantStatus, rr.Code)
-
 			checkBodyByRE(t, test.wantBodyRE, rr.Body.String())
 		})
 	}
 }
 
-func setEditUserExpectations(db *mocks.MockStorager, test *commonTestCase) {
+func setEditUserExpectations(t *testing.T, db *mocks.MockStorager, test *commonTestCase) {
 	if test.name == "broken json" || strings.HasPrefix(test.name, "wrong URL") {
 		return
 	}
 
 	var user model.User
-	json.Unmarshal(jsonValidStr, &user)
+	if err := json.Unmarshal(jsonValidStr, &user); err != nil {
+		t.Fatalf("unexpected fail of Unmarshal: %s", err)
+	}
 
 	db.EXPECT().
-		EditUser(1, &user).Return(test.mockRet)
+		EditUser(1, &user).Return(test.mockRetErr)
 }
