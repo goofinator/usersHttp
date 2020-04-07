@@ -8,7 +8,7 @@ import (
 	reflect "reflect"
 
 	gomock "github.com/golang/mock/gomock"
-	model "github.com/goofinator/usersHttp/internal/web/model"
+	model "github.com/goofinator/usersHttp/internal/model"
 )
 
 // MockStorager is a mock of Storager interface

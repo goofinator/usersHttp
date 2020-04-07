@@ -9,7 +9,7 @@ import (
 	"log"
 
 	"github.com/goofinator/usersHttp/internal/init/startup"
-	"github.com/goofinator/usersHttp/internal/web/model"
+	"github.com/goofinator/usersHttp/internal/model"
 	"github.com/jmoiron/sqlx"
 
 	//import pgx sql driver

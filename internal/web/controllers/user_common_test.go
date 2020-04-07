@@ -9,9 +9,9 @@ import (
 	"testing"
 	"time"
 
+	"github.com/goofinator/usersHttp/internal/model"
 	"github.com/goofinator/usersHttp/internal/repositories"
 	"github.com/goofinator/usersHttp/internal/repositories/mocks"
-	"github.com/goofinator/usersHttp/internal/web/model"
 )
 
 var someError = errors.New("some error")

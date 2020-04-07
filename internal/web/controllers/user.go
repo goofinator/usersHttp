@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/goofinator/usersHttp/internal/model"
 	"github.com/goofinator/usersHttp/internal/repositories"
 	"github.com/goofinator/usersHttp/internal/utils"
-	"github.com/goofinator/usersHttp/internal/web/model"
 )
 
 // AddUserHandler handles POST request on /users endpoint

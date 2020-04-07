@@ -8,9 +8,9 @@ import (
 	"testing"
 
 	"github.com/golang/mock/gomock"
+	"github.com/goofinator/usersHttp/internal/model"
 	"github.com/goofinator/usersHttp/internal/repositories/mocks"
 	. "github.com/goofinator/usersHttp/internal/web/controllers"
-	"github.com/goofinator/usersHttp/internal/web/model"
 )
 
 var testsEditUser = []*commonTestCase{
