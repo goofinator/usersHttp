@@ -1,3 +1,6 @@
+//go:generate mockgen -destination=./mocks/mock_storage.go -package=mocks github.com/goofinator/usersHttp/internal/repositories Storager
+//go:generate goimports -w ./mocks/mock_storage.go
+
 package repositories
 
 import (
