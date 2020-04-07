@@ -41,6 +41,6 @@ func handleRoutes(router *mux.Router, db repositories.Storager) {
 	}).Methods("DELETE")
 
 	router.HandleFunc("/users/{id::[0-9]+}", func(w http.ResponseWriter, r *http.Request) {
-		controllers.EditUserHandler(w, r)
+		controllers.EditUserHandler(w, r, db)
 	}).Methods("PUT")
 }

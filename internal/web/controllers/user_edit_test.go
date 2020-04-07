@@ -16,7 +16,7 @@ func TestEditUserHandler(t *testing.T) {
 
 	rr := httptest.NewRecorder()
 	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		EditUserHandler(w, r)
+		EditUserHandler(w, r, nil)
 	})
 	handler.ServeHTTP(rr, req)
 
