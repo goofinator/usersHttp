@@ -4,6 +4,7 @@ go 1.13
 
 require (
 	github.com/golang/mock v1.4.3
+	github.com/gorilla/context v1.1.1
 	github.com/gorilla/mux v1.7.4
 	github.com/jackc/pgx/v4 v4.6.0
 	github.com/jmoiron/sqlx v1.2.0
