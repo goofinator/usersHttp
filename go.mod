@@ -10,4 +10,5 @@ require (
 	github.com/jmoiron/sqlx v1.2.0
 	golang.org/x/crypto v0.0.0-20200403201458-baeed622b8d8 // indirect
 	golang.org/x/xerrors v0.0.0-20191204190536-9bdfabe68543 // indirect
+	google.golang.org/genproto v0.0.0-20200407120235-9eb9bb161a06 // indirect
 )

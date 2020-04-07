@@ -7,6 +7,8 @@ import (
 
 	"github.com/goofinator/usersHttp/internal/init/startup"
 	"github.com/goofinator/usersHttp/internal/repositories"
+	"github.com/goofinator/usersHttp/internal/services"
+	"github.com/goofinator/usersHttp/internal/web/binders"
 	"github.com/goofinator/usersHttp/internal/web/controllers"
 	"github.com/gorilla/mux"
 )
@@ -28,19 +30,23 @@ func Run(iniData *startup.IniData) {
 }
 
 func handleRoutes(router *mux.Router, db repositories.Storager) {
-	router.HandleFunc("/users", func(w http.ResponseWriter, r *http.Request) {
-		controllers.AddUserHandler(w, r, db)
-	}).Methods("POST")
+	uc := UserController()
 
-	router.HandleFunc("/users", func(w http.ResponseWriter, r *http.Request) {
-		controllers.ListUsersHandler(w, r, db)
-	}).Methods("GET")
+	router.HandleFunc("/users", uc.Add).Methods("POST")
 
-	router.HandleFunc("/users/{id::[0-9]+}", func(w http.ResponseWriter, r *http.Request) {
-		controllers.DeleteUserHandler(w, r, db)
-	}).Methods("DELETE")
+	router.HandleFunc("/users",
+		binders.IDBinder(uc.Delete)).Methods("GET")
 
-	router.HandleFunc("/users/{id::[0-9]+}", func(w http.ResponseWriter, r *http.Request) {
-		controllers.EditUserHandler(w, r, db)
-	}).Methods("PUT")
+	router.HandleFunc("/users/{id:[0-9]+}",
+		binders.IDBinder(uc.Delete)).Methods("DELETE")
+
+	router.HandleFunc("/users/{id:[0-9]+}",
+		binders.IDBinder(uc.Delete)).Methods("PUT")
+
+}
+
+// UserController creates user's controller
+func UserController() controllers.User {
+	service := services.NewUser()
+	return controllers.NewUser(service)
 }
