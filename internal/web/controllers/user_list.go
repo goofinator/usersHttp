@@ -11,6 +11,7 @@ import (
 // ListUsersHandler handles GET request on /users endpoint
 // to get all users from a DB
 func ListUsersHandler(w http.ResponseWriter, r *http.Request, db repositories.Storager) {
+	w.Header().Set("Content-Type", "application/json")
 	users, err := db.GetUsers()
 	if err != nil {
 		msg := fmt.Sprintf("error on GetUsers: %s.", err)
