@@ -2,40 +2,73 @@ package controllers_test
 
 import (
 	"bytes"
-	"fmt"
+	"encoding/json"
 	"net/http"
-	"net/http/httptest"
 	"testing"
-	"time"
 
+	"github.com/golang/mock/gomock"
+	"github.com/goofinator/usersHttp/internal/repositories/mocks"
 	. "github.com/goofinator/usersHttp/internal/web/controllers"
+	"github.com/goofinator/usersHttp/internal/web/model"
 )
 
+var testsAddUser = []*commonTestCase{
+	{
+		name:       "broken json",
+		jsonStr:    jsonInvalidStr,
+		wantStatus: http.StatusUnprocessableEntity,
+		wantBodyRE: "^error on json\\.Decode: parsing time",
+		mockRetErr: nil,
+	},
+	{
+		name:       "db error",
+		jsonStr:    jsonValidStr,
+		wantStatus: http.StatusInternalServerError,
+		wantBodyRE: "^error on AddUser: some error",
+		mockRetErr: someError,
+	},
+	{
+		name:       "success",
+		jsonStr:    jsonValidStr,
+		wantStatus: http.StatusOK,
+		wantBodyRE: "^$",
+		mockRetErr: nil,
+	},
+}
+
 func TestAddUserHandler(t *testing.T) {
-	var jsonStr = []byte(fmt.Sprintf(`{"Id": 0,
-	"Name": "petya",
-	"Lastname": "Pupkin",
-	"Age": 22,
-	"Birthdate": "%v"}`,
-		time.Now().UTC().Format(time.RFC3339)))
+	for _, test := range testsAddUser {
+		t.Run(test.name, func(t *testing.T) {
+			//You need a Storager mock to process the request
+			controller := gomock.NewController(t)
+			defer controller.Finish()
+			db := mocks.NewMockStorager(controller)
 
-	req, err := http.NewRequest("POST", "/users", bytes.NewBuffer(jsonStr))
-	if err != nil {
-		t.Fatalf("unexpected fail of NewRequest: %s", err)
+			setAddUserExpectations(t, db, test)
+
+			req, err := http.NewRequest("POST", "/users", bytes.NewBuffer(test.jsonStr))
+			if err != nil {
+				t.Fatalf("unexpected fail of NewRequest: %s", err)
+			}
+			req.Header.Set("Content-Type", "application/json")
+			rr := handleRequest(req, db, AddUserHandler)
+
+			checkStatus(t, test.wantStatus, rr.Code)
+			checkBodyByRE(t, test.wantBodyRE, rr.Body.String())
+		})
 	}
-	//req.Header.Set("X-Custom-Header", "myvalue")
-	req.Header.Set("Content-Type", "application/json")
+}
 
-	rr := httptest.NewRecorder()
-	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		AddUserHandler(w, r, nil)
-	})
-	handler.ServeHTTP(rr, req)
-
-	if status := rr.Code; status != http.StatusOK {
-		t.Errorf("unexpected status code:\nwant: %v\ngot: %v",
-			http.StatusOK, status)
+func setAddUserExpectations(t *testing.T, db *mocks.MockStorager, test *commonTestCase) {
+	if test.name == "broken json" {
+		return
 	}
 
-	fmt.Println(rr.Body.String())
+	var user model.User
+	if err := json.Unmarshal(jsonValidStr, &user); err != nil {
+		t.Fatalf("unexpected fail of Unmarshal: %s", err)
+	}
+
+	db.EXPECT().
+		AddUser(&user).Return(test.mockRetErr)
 }
