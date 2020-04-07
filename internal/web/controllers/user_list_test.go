@@ -16,7 +16,7 @@ func TestListUsersHandler(t *testing.T) {
 
 	rr := httptest.NewRecorder()
 	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		ListUsersHandler(w, r)
+		ListUsersHandler(w, r, nil)
 	})
 	handler.ServeHTTP(rr, req)
 

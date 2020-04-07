@@ -33,7 +33,7 @@ func handleRoutes(router *mux.Router, db repositories.Storager) {
 	}).Methods("POST")
 
 	router.HandleFunc("/users", func(w http.ResponseWriter, r *http.Request) {
-		controllers.ListUsersHandler(w, r)
+		controllers.ListUsersHandler(w, r, db)
 	}).Methods("GET")
 
 	router.HandleFunc("/users/{id::[0-9]+}", func(w http.ResponseWriter, r *http.Request) {
