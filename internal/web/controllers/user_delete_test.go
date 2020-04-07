@@ -16,7 +16,7 @@ func TestDeleteUserHandler(t *testing.T) {
 
 	rr := httptest.NewRecorder()
 	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		DeleteUserHandler(w, r)
+		DeleteUserHandler(w, r, nil)
 	})
 	handler.ServeHTTP(rr, req)
 

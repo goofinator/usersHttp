@@ -37,7 +37,7 @@ func handleRoutes(router *mux.Router, db repositories.Storager) {
 	}).Methods("GET")
 
 	router.HandleFunc("/users/{id::[0-9]+}", func(w http.ResponseWriter, r *http.Request) {
-		controllers.DeleteUserHandler(w, r)
+		controllers.DeleteUserHandler(w, r, db)
 	}).Methods("DELETE")
 
 	router.HandleFunc("/users/{id::[0-9]+}", func(w http.ResponseWriter, r *http.Request) {
