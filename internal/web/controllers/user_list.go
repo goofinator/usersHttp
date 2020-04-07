@@ -19,13 +19,12 @@ func ListUsersHandler(w http.ResponseWriter, r *http.Request, db repositories.St
 		return
 	}
 
-	prettyJSON, err := json.MarshalIndent(users, "", "    ")
+	encoder := json.NewEncoder(w)
+	encoder.SetIndent("", "    ")
+	err = encoder.Encode(users)
 	if err != nil {
 		msg := fmt.Sprintf("error on json.MarshalIndent: %s.", err)
 		http.Error(w, msg, http.StatusInternalServerError)
 		return
 	}
-
-	fmt.Fprintf(w, string(prettyJSON))
-
 }
