@@ -76,9 +76,9 @@ func EditUserHandler(w http.ResponseWriter, r *http.Request, db repositories.Sto
 // to get all users from a DB
 func ListUsersHandler(w http.ResponseWriter, r *http.Request, db repositories.Storager) {
 	w.Header().Set("Content-Type", "application/json")
-	users, err := db.GetUsers()
+	users, err := db.Users()
 	if err != nil {
-		msg := fmt.Sprintf("error on GetUsers: %s.", err)
+		msg := fmt.Sprintf("error on Users: %s.", err)
 		http.Error(w, msg, http.StatusInternalServerError)
 		return
 	}

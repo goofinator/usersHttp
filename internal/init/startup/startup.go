@@ -28,8 +28,8 @@ type IniData struct {
 	TableName    string
 }
 
-// GetIniData returns port to use obtained from user or DefaultPort
-func GetIniData() *IniData {
+// Configuration returns port to use obtained from user or DefaultPort
+func Configuration() *IniData {
 	iniData := &IniData{}
 	flag.IntVar(&iniData.Port, "port", DefaultPort, "port to connect this server")
 	flag.StringVar(&iniData.DBName, "dbname", DefaultDBName, "data base name")

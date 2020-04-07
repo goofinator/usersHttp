@@ -17,7 +17,7 @@ var testsListUsers = []*commonTestCase{
 	{
 		name:         "db error",
 		wantStatus:   http.StatusInternalServerError,
-		wantBodyRE:   "^error on GetUsers: some error",
+		wantBodyRE:   "^error on Users: some error",
 		mockRetErr:   someError,
 		mockRetUsers: nil,
 	},
@@ -72,7 +72,7 @@ func TestListUsersHandler(t *testing.T) {
 
 func setListUsersExpectations(db *mocks.MockStorager, test *commonTestCase) {
 	db.EXPECT().
-		GetUsers().Return(test.mockRetUsers, test.mockRetErr)
+		Users().Return(test.mockRetUsers, test.mockRetErr)
 }
 
 func checkUsers(t *testing.T, test *commonTestCase, body []byte) {

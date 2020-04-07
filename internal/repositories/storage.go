@@ -17,13 +17,13 @@ import (
 )
 
 // Storager interface wraps Close, AddUser, DeleteUser
-// EditUser and GetUsers methods
+// EditUser and Users methods
 type Storager interface {
 	Close()
 	AddUser(user *model.User) error
 	DeleteUser(id int) error
 	EditUser(id int, user *model.User) error
-	GetUsers() (users []*model.User, err error)
+	Users() (users []*model.User, err error)
 }
 
 // Storage is a data storage based on *sqlx.DB
@@ -115,8 +115,8 @@ func (storage *Storage) EditUser(id int, user *model.User) (err error) {
 	return nil
 }
 
-// GetUsers returns all users in the storage
-func (storage *Storage) GetUsers() (users []*model.User, err error) {
+// Users returns all users in the storage
+func (storage *Storage) Users() (users []*model.User, err error) {
 	request := fmt.Sprintf("SELECT id, name, lastname, age, birthdate FROM %s ORDER BY ID",
 		storage.iniData.TableName)
 	rows, err := storage.db.Query(request)

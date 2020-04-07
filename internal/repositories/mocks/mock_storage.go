@@ -88,17 +88,17 @@ func (mr *MockStoragerMockRecorder) EditUser(arg0, arg1 interface{}) *gomock.Cal
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "EditUser", reflect.TypeOf((*MockStorager)(nil).EditUser), arg0, arg1)
 }
 
-// GetUsers mocks base method
-func (m *MockStorager) GetUsers() ([]*model.User, error) {
+// Users mocks base method
+func (m *MockStorager) Users() ([]*model.User, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetUsers")
+	ret := m.ctrl.Call(m, "Users")
 	ret0, _ := ret[0].([]*model.User)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// GetUsers indicates an expected call of GetUsers
-func (mr *MockStoragerMockRecorder) GetUsers() *gomock.Call {
+// Users indicates an expected call of Users
+func (mr *MockStoragerMockRecorder) Users() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUsers", reflect.TypeOf((*MockStorager)(nil).GetUsers))
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Users", reflect.TypeOf((*MockStorager)(nil).Users))
 }

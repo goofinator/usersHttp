@@ -6,7 +6,7 @@ import (
 )
 
 func main() {
-	iniData := startup.GetIniData()
+	iniData := startup.Configuration()
 
 	web.Run(iniData)
 }
