@@ -6,6 +6,7 @@ import (
 	"net/http"
 
 	"github.com/goofinator/usersHttp/internal/init/startup"
+	"github.com/goofinator/usersHttp/internal/repositories"
 	"github.com/goofinator/usersHttp/internal/services"
 	"github.com/goofinator/usersHttp/internal/web/binders"
 	"github.com/goofinator/usersHttp/internal/web/controllers"
@@ -30,18 +31,18 @@ func handleRoutes(router *mux.Router) {
 
 	router.HandleFunc("/users", uc.Add).Methods("POST")
 
-	router.HandleFunc("/users",
-		binders.IDBinder(uc.Delete)).Methods("GET")
+	router.HandleFunc("/users", uc.List).Methods("GET")
 
 	router.HandleFunc("/users/{id:[0-9]+}",
 		binders.IDBinder(uc.Delete)).Methods("DELETE")
 
 	router.HandleFunc("/users/{id:[0-9]+}",
-		binders.IDBinder(uc.Delete)).Methods("PUT")
+		binders.IDBinder(uc.Replace)).Methods("PUT")
 
 }
 
 func userController() controllers.User {
-	service := services.NewUser()
+	repository := repositories.NewUser()
+	service := services.NewUser(repository)
 	return controllers.NewUser(service)
 }
