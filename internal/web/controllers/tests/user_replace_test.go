@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"net/http"
+	"regexp"
 	"strings"
 	"testing"
 
@@ -12,6 +13,8 @@ import (
 	"github.com/goofinator/usersHttp/internal/services/mocks"
 	"github.com/goofinator/usersHttp/internal/web/binders"
 	"github.com/goofinator/usersHttp/internal/web/controllers"
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 var testsReplace = []*commonUserTestCase{
@@ -61,14 +64,13 @@ func TestReplaceHandler(t *testing.T) {
 			setReplaceExpectations(t, service, test)
 
 			req, err := http.NewRequest("PUT", test.url, bytes.NewBuffer(test.jsonStr))
-			if err != nil {
-				t.Fatalf("unexpected fail of NewRequest: %s", err)
-			}
+			require.NoError(t, err)
+
 			rr := handleRequest(req, binders.IDBinder(controller.Replace),
 				&handlingParams{route: "/users/{id:[0-9]+}", method: "PUT"})
 
-			checkStatus(t, test.wantStatus, rr.Code)
-			checkBodyByRE(t, test.wantBodyRE, rr.Body.String())
+			assert.Equal(t, test.wantStatus, rr.Code)
+			assert.Regexp(t, regexp.MustCompile(test.wantBodyRE), rr.Body.String())
 		})
 	}
 }

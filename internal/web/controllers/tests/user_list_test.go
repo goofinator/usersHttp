@@ -3,7 +3,7 @@ package controllers_test
 import (
 	"encoding/json"
 	"net/http"
-	"strings"
+	"regexp"
 	"testing"
 	"time"
 
@@ -11,6 +11,8 @@ import (
 	"github.com/goofinator/usersHttp/internal/model"
 	"github.com/goofinator/usersHttp/internal/services/mocks"
 	"github.com/goofinator/usersHttp/internal/web/controllers"
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 var testsList = []*commonUserTestCase{
@@ -57,14 +59,13 @@ func TestListHandler(t *testing.T) {
 			setListExpectations(service, test)
 
 			req, err := http.NewRequest("GET", "/users", nil)
-			if err != nil {
-				t.Fatalf("unexpected fail of NewRequest: %s", err)
-			}
+			require.NoError(t, err)
+
 			rr := handleRequest(req, controller.List,
 				&handlingParams{route: "/users", method: "GET"})
 
-			checkStatus(t, test.wantStatus, rr.Code)
-			checkBodyByRE(t, test.wantBodyRE, rr.Body.String())
+			assert.Equal(t, test.wantStatus, rr.Code)
+			assert.Regexp(t, regexp.MustCompile(test.wantBodyRE), rr.Body.String())
 			if rr.Code == http.StatusOK {
 				checkUsers(t, test, rr.Body.Bytes())
 			}
@@ -82,10 +83,5 @@ func checkUsers(t *testing.T, test *commonUserTestCase, body []byte) {
 	if err != nil {
 		t.Fatalf("unexpected fail of MarshalIndent: %s", err)
 	}
-	sWantJson := strings.TrimRight(string(wantJson), "\n ")
-	sBody := strings.TrimRight(string(body), "\n ")
-
-	if sWantJson != sBody {
-		t.Errorf("unexpected response body:\nwant: %q\ngot: %q", sWantJson, sBody)
-	}
+	assert.JSONEq(t, string(wantJson), string(body))
 }

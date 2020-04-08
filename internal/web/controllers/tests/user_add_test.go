@@ -4,12 +4,15 @@ import (
 	"bytes"
 	"encoding/json"
 	"net/http"
+	"regexp"
 	"testing"
 
 	"github.com/golang/mock/gomock"
 	"github.com/goofinator/usersHttp/internal/model"
 	"github.com/goofinator/usersHttp/internal/services/mocks"
 	"github.com/goofinator/usersHttp/internal/web/controllers"
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 var testsAdd = []*commonUserTestCase{
@@ -48,15 +51,14 @@ func TestAddHandler(t *testing.T) {
 			setAddExpectations(t, service, test)
 
 			req, err := http.NewRequest("POST", "/users", bytes.NewBuffer(test.jsonStr))
-			if err != nil {
-				t.Fatalf("unexpected fail of NewRequest: %s", err)
-			}
+			require.NoError(t, err)
+
 			req.Header.Set("Content-Type", "application/json")
 			rr := handleRequest(req, controller.Add,
 				&handlingParams{route: "/users", method: "POST"})
 
-			checkStatus(t, test.wantStatus, rr.Code)
-			checkBodyByRE(t, test.wantBodyRE, rr.Body.String())
+			assert.Equal(t, test.wantStatus, rr.Code)
+			assert.Regexp(t, regexp.MustCompile(test.wantBodyRE), rr.Body.String())
 		})
 	}
 }

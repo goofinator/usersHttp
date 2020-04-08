@@ -2,6 +2,7 @@ package controllers_test
 
 import (
 	"net/http"
+	"regexp"
 	"strings"
 	"testing"
 
@@ -9,6 +10,8 @@ import (
 	"github.com/goofinator/usersHttp/internal/services/mocks"
 	"github.com/goofinator/usersHttp/internal/web/binders"
 	"github.com/goofinator/usersHttp/internal/web/controllers"
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 var testsDelete = []*commonUserTestCase{
@@ -47,14 +50,13 @@ func TestDeleteHandler(t *testing.T) {
 			setDeleteExpectations(service, test)
 
 			req, err := http.NewRequest("DELETE", test.url, nil)
-			if err != nil {
-				t.Fatalf("unexpected fail of NewRequest: %s", err)
-			}
+			require.NoError(t, err)
+
 			rr := handleRequest(req, binders.IDBinder(controller.Delete),
 				&handlingParams{route: "/users/{id:[0-9]+}", method: "DELETE"})
 
-			checkStatus(t, test.wantStatus, rr.Code)
-			checkBodyByRE(t, test.wantBodyRE, rr.Body.String())
+			assert.Equal(t, test.wantStatus, rr.Code)
+			assert.Regexp(t, regexp.MustCompile(test.wantBodyRE), rr.Body.String())
 		})
 	}
 }
