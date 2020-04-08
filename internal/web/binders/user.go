@@ -22,13 +22,13 @@ func IDBinder(h http.HandlerFunc) http.HandlerFunc {
 		vars := mux.Vars(r)
 		sid, ok := vars["id"]
 		if !ok {
-			http.Error(w, "missing id", http.StatusNotAcceptable)
+			http.Error(w, "missing id", http.StatusBadRequest)
 			return
 		}
 
 		id, err := strconv.Atoi(sid)
 		if err != nil {
-			http.Error(w, fmt.Sprintf("bad id: %s", err), http.StatusNotAcceptable)
+			http.Error(w, fmt.Sprintf("bad id: %s", err), http.StatusBadRequest)
 			return
 		}
 
