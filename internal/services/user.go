@@ -1,3 +1,6 @@
+//go:generate mockgen -destination=./mocks/mock_user.go -package=mocks github.com/goofinator/usersHttp/internal/services User
+//go:generate goimports -w ./mocks/mock_user.go
+
 package services
 
 import (
