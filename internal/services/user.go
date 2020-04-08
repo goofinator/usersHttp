@@ -22,10 +22,12 @@ func NewUser() User {
 type user struct{}
 
 func (u *user) Add(user *model.User) error {
+	fmt.Println("Add: ", user)
 	return fmt.Errorf("not implemented")
 }
 
 func (u *user) Delete(id int) error {
+	fmt.Println("Delete: ", id)
 	return fmt.Errorf("not implemented")
 }
 
@@ -34,5 +36,6 @@ func (u *user) List() ([]*model.User, error) {
 }
 
 func (u *user) Replace(id int, user *model.User) error {
+	fmt.Println("Replace: ", id, user)
 	return fmt.Errorf("not implemented")
 }

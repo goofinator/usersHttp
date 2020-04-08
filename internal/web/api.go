@@ -30,7 +30,7 @@ func Run(iniData *startup.IniData) {
 }
 
 func handleRoutes(router *mux.Router, db repositories.Storager) {
-	uc := UserController()
+	uc := userController()
 
 	router.HandleFunc("/users", uc.Add).Methods("POST")
 
@@ -45,8 +45,7 @@ func handleRoutes(router *mux.Router, db repositories.Storager) {
 
 }
 
-// UserController creates user's controller
-func UserController() controllers.User {
+func userController() controllers.User {
 	service := services.NewUser()
 	return controllers.NewUser(service)
 }
