@@ -2,8 +2,8 @@ package repositories
 
 import (
 	"database/sql"
-	"fmt"
 
+	"github.com/goofinator/usersHttp/internal/datasource"
 	"github.com/goofinator/usersHttp/internal/model"
 )
 
@@ -23,20 +23,74 @@ func NewUser() User {
 
 type user struct{}
 
+// Add inserts User in repository
 func (u *user) Add(tx *sql.Tx, user *model.User) error {
-	fmt.Println("Add: ", user)
-	return fmt.Errorf("not implemented")
+	request := `INSERT INTO http_users 	(id, name, lastname, birthdate)
+	VALUES(DEFAULT,$1,$2,$3)`
+	result, err := tx.Exec(request, user.Name, user.Lastname, user.Birthdate)
+
+	if err := datasource.CheckResult(1, result, err); err != nil {
+		return err
+	}
+	return nil
 }
 
+// Delete removes user from repository
 func (u *user) Delete(tx *sql.Tx, id int) error {
-	fmt.Println("Delete: ", id)
-	return fmt.Errorf("not implemented")
+	request := "DELETE FROM http_users WHERE id=$1"
+	result, err := tx.Exec(request, id)
+
+	if err := datasource.CheckResult(1, result, err); err != nil {
+		return err
+	}
+	return nil
 }
+
+// List returns all users from repository
 func (u *user) List(tx *sql.Tx) ([]*model.User, error) {
-	fmt.Println("List")
-	return nil, fmt.Errorf("not implemented")
+	request := `SELECT id, name, lastname, birthdate, EXTRACT(YEAR FROM AGE(birthdate)) 
+	AS age FROM http_users ORDER BY ID`
+	rows, err := tx.Query(request)
+
+	users, err := processRows(rows, err)
+	if err != nil {
+		return nil, err
+	}
+	return users, nil
 }
+
+// Replace put user's data in repository to Row with specified id
 func (u *user) Replace(tx *sql.Tx, id int, user *model.User) error {
-	fmt.Println("Replace: ", id, user)
-	return fmt.Errorf("not implemented")
+	request := `UPDATE http_users SET name=$1, lastname=$2, birthdate=$3 WHERE id=$4`
+	result, err := tx.Exec(request, user.Name, user.Lastname, user.Birthdate, id)
+
+	if err := datasource.CheckResult(1, result, err); err != nil {
+		return err
+	}
+	return nil
+}
+
+func processRows(rows *sql.Rows, err error) ([]*model.User, error) {
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	users := make([]*model.User, 0)
+
+	for rows.Next() {
+		user := &model.User{}
+		err := rows.Scan(&user.ID, &user.Name, &user.Lastname, &user.Birthdate, &user.Age)
+		if err != nil {
+			return nil, err
+		}
+		users = append(users, user)
+	}
+
+	err = rows.Err()
+	if err != nil {
+		return nil, err
+	}
+
+	return users, nil
 }
