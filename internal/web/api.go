@@ -6,7 +6,6 @@ import (
 	"net/http"
 
 	"github.com/goofinator/usersHttp/internal/init/startup"
-	"github.com/goofinator/usersHttp/internal/repositories"
 	"github.com/goofinator/usersHttp/internal/services"
 	"github.com/goofinator/usersHttp/internal/web/binders"
 	"github.com/goofinator/usersHttp/internal/web/controllers"
@@ -17,10 +16,7 @@ import (
 func Run(iniData *startup.IniData) {
 	router := mux.NewRouter()
 
-	db := repositories.New(iniData)
-	defer db.Close()
-
-	handleRoutes(router, db)
+	handleRoutes(router)
 	http.Handle("/", router)
 
 	err := http.ListenAndServe(fmt.Sprintf(":%d", iniData.Port), nil)
@@ -29,7 +25,7 @@ func Run(iniData *startup.IniData) {
 	}
 }
 
-func handleRoutes(router *mux.Router, db repositories.Storager) {
+func handleRoutes(router *mux.Router) {
 	uc := userController()
 
 	router.HandleFunc("/users", uc.Add).Methods("POST")
