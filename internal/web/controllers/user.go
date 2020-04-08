@@ -1,94 +1,77 @@
 package controllers
 
 import (
-	"encoding/json"
-	"fmt"
 	"net/http"
 
-	"github.com/goofinator/usersHttp/internal/repositories"
+	"github.com/goofinator/usersHttp/internal/services"
 	"github.com/goofinator/usersHttp/internal/utils"
-	"github.com/goofinator/usersHttp/internal/web/model"
+	"github.com/goofinator/usersHttp/internal/web/binders"
+	"github.com/gorilla/context"
 )
 
-// AddUserHandler handles POST request on /users endpoint
-// to add user to a DB
-func AddUserHandler(w http.ResponseWriter, r *http.Request, db repositories.Storager) {
-	decoder := json.NewDecoder(r.Body)
-	var user model.User
+// User interface wrapps the user's controller functions
+type User interface {
+	Add(http.ResponseWriter, *http.Request)
+	Delete(http.ResponseWriter, *http.Request)
+	List(http.ResponseWriter, *http.Request)
+	Replace(http.ResponseWriter, *http.Request)
+}
 
-	if err := decoder.Decode(&user); err != nil {
-		msg := fmt.Sprintf("error on json.Decode: %s.", err)
-		http.Error(w, msg, http.StatusUnprocessableEntity)
+// NewUser produces a user's controller
+func NewUser(service services.User) User {
+	return &user{service: service}
+}
+
+type user struct {
+	service services.User
+}
+
+// Add invokes user's service to store usere
+func (u *user) Add(w http.ResponseWriter, r *http.Request) {
+	user, err := utils.DecodeUser(r.Body)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
-	if err := db.AddUser(&user); err != nil {
-		msg := fmt.Sprintf("error on AddUser: %s.", err)
-		http.Error(w, msg, http.StatusInternalServerError)
-		return
+	if err := u.service.Add(user); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
 	}
 }
 
-// DeleteUserHandler handles DELETE request on /users/:id endpoint
-// to remove user from a DB
-func DeleteUserHandler(w http.ResponseWriter, r *http.Request, db repositories.Storager) {
-	id, err := utils.IDFromURL(r.URL)
-	if err != nil {
-		msg := fmt.Sprintf("error on IDFromURL: %s.", err)
-		http.Error(w, msg, http.StatusUnprocessableEntity)
-		return
-	}
+// Delete invokes user's service to delete usere
+func (u *user) Delete(w http.ResponseWriter, r *http.Request) {
+	id := context.Get(r, binders.ID).(int)
 
-	if err := db.DeleteUser(id); err != nil {
-		msg := fmt.Sprintf("error on DeleteUser: %s.", err)
-		http.Error(w, msg, http.StatusInternalServerError)
-		return
-	}
-
-}
-
-// EditUserHandler handles PUT request on /users/:id endpoint
-// to edit user in a DB
-func EditUserHandler(w http.ResponseWriter, r *http.Request, db repositories.Storager) {
-	id, err := utils.IDFromURL(r.URL)
-	if err != nil {
-		msg := fmt.Sprintf("error on IDFromURL: %s.", err)
-		http.Error(w, msg, http.StatusUnprocessableEntity)
-		return
-	}
-
-	decoder := json.NewDecoder(r.Body)
-	var user model.User
-	if err := decoder.Decode(&user); err != nil {
-		msg := fmt.Sprintf("error on json.Decode: %s.", err)
-		http.Error(w, msg, http.StatusUnprocessableEntity)
-		return
-	}
-
-	if err := db.EditUser(id, &user); err != nil {
-		msg := fmt.Sprintf("error on EditUser: %s.", err)
-		http.Error(w, msg, http.StatusInternalServerError)
-		return
+	if err := u.service.Delete(id); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
 	}
 }
 
-// ListUsersHandler handles GET request on /users endpoint
-// to get all users from a DB
-func ListUsersHandler(w http.ResponseWriter, r *http.Request, db repositories.Storager) {
-	w.Header().Set("Content-Type", "application/json")
-	users, err := db.GetUsers()
+// List invokes user's service to return list of users
+func (u *user) List(w http.ResponseWriter, r *http.Request) {
+	users, err := u.service.List()
 	if err != nil {
-		msg := fmt.Sprintf("error on GetUsers: %s.", err)
-		http.Error(w, msg, http.StatusInternalServerError)
+		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
-	encoder := json.NewEncoder(w)
-	encoder.SetIndent("", "    ")
-	err = encoder.Encode(users)
+	if err := utils.EncodeUsers(w, users); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+}
+
+// Replace invokes user's service to replace data of user with specified id
+func (u *user) Replace(w http.ResponseWriter, r *http.Request) {
+	id := context.Get(r, binders.ID).(int)
+	user, err := utils.DecodeUser(r.Body)
 	if err != nil {
-		msg := fmt.Sprintf("error on json.MarshalIndent: %s.", err)
-		http.Error(w, msg, http.StatusInternalServerError)
+		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
+
+	if err := u.service.Replace(id, user); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+	}
+
 }
