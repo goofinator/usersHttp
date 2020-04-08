@@ -6,6 +6,9 @@ import (
 
 	"github.com/goofinator/usersHttp/internal/init/startup"
 	"github.com/goofinator/usersHttp/utils"
+
+	//ini of pgx
+	_ "github.com/jackc/pgx/v4/stdlib"
 	"github.com/jmoiron/sqlx"
 )
 
