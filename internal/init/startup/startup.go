@@ -14,7 +14,6 @@ const (
 	DefaultDBPort       = 5432
 	DefaultUserName     = "postgres"
 	DefaultUserPassword = ""
-	DefaultTableName    = "httpusers"
 )
 
 // IniData structure stores initial data to start a service
@@ -25,7 +24,6 @@ type IniData struct {
 	DBPort       int
 	UserName     string
 	UserPassword string
-	TableName    string
 }
 
 // Configuration returns port to use obtained from user or DefaultPort
@@ -37,8 +35,6 @@ func Configuration() *IniData {
 	flag.IntVar(&iniData.DBPort, "dbport", DefaultDBPort, "port to access data base")
 	flag.StringVar(&iniData.UserName, "username", DefaultUserName, "login to connect to database")
 	flag.StringVar(&iniData.UserPassword, "password", DefaultUserPassword, "password to connect to database")
-	flag.StringVar(&iniData.TableName, "table", DefaultTableName,
-		"table name in DB to operate (it will b e created if not exists)")
 
 	flag.Parse()
 

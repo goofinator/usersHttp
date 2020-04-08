@@ -5,7 +5,16 @@ import (
 	"fmt"
 
 	"github.com/goofinator/usersHttp/internal/init/startup"
+	"github.com/goofinator/usersHttp/utils"
 	"github.com/jmoiron/sqlx"
+)
+
+const (
+	// ScriptsDirectory is a base directory where the *.sql scripts
+	// will be searched for
+	ScriptsDirectory = "./scripts"
+	// CreateScript is a name of sqript file to create a table
+	CreateScript = "create_db.sql"
 )
 
 // SQL stores sqlx database intity
@@ -18,7 +27,7 @@ func InitSQL(iniData *startup.IniData) error {
 		return err
 	}
 
-	if err := createTable(iniData.TableName); err != nil {
+	if err := createTable(); err != nil {
 		return err
 	}
 
@@ -82,7 +91,7 @@ func connect(iniData *startup.IniData) error {
 	return nil
 }
 
-func createTable(name string) (err error) {
+func createTable() (err error) {
 	tx, err := SQL.Begin()
 	if err != nil {
 		return err
@@ -91,13 +100,16 @@ func createTable(name string) (err error) {
 		err = CloseTransaction(tx, err)
 	}()
 
-	_, err = tx.Exec(fmt.Sprintf(`CREATE TABLE IF NOT EXISTS %s (
-	id SERIAL PRIMARY KEY,
-	name text NOT NULL CHECK(length(name)>0),
-	lastname text NOT NULL CHECK(length(lastname)>0),
-	age smallint NOT NULL CHECK(age>0),
-	birthdate timestamp with time zone NOT NULL
-	)`, name))
+	querries, err := utils.Script(ScriptsDirectory, CreateScript)
+	if err != nil {
+		return err
+	}
 
-	return err
+	for _, querry := range querries {
+		_, err = tx.Exec(querry)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
 }
