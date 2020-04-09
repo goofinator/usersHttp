@@ -28,7 +28,7 @@ var testsAdd = []*commonUserTestCase{
 		jsonStr:    jsonValidStr,
 		wantStatus: http.StatusBadRequest,
 		wantBodyRE: "^some error",
-		mockRetErr: someError,
+		mockRetErr: errSome,
 	},
 	{
 		name:       "success",

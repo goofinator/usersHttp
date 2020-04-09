@@ -20,7 +20,7 @@ var testsList = []*commonUserTestCase{
 		name:         "db error",
 		wantStatus:   http.StatusBadRequest,
 		wantBodyRE:   "^some error",
-		mockRetErr:   someError,
+		mockRetErr:   errSome,
 		mockRetUsers: nil,
 	},
 	{
@@ -79,9 +79,9 @@ func setListExpectations(controller *mocks.MockUser, test *commonUserTestCase) {
 }
 
 func checkUsers(t *testing.T, test *commonUserTestCase, body []byte) {
-	wantJson, err := json.MarshalIndent(test.mockRetUsers, "", "    ")
+	wantJSON, err := json.MarshalIndent(test.mockRetUsers, "", "    ")
 	if err != nil {
 		t.Fatalf("unexpected fail of MarshalIndent: %s", err)
 	}
-	assert.JSONEq(t, string(wantJson), string(body))
+	assert.JSONEq(t, string(wantJSON), string(body))
 }
