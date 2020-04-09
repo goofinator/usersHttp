@@ -83,9 +83,9 @@ func sqlAddExpectations(mock sqlmock.Sqlmock, test *userTestCase) {
 	mock.ExpectBegin()
 
 	reqRegExp := &strings.Builder{}
-	fmt.Fprint(reqRegExp, "^INSERT[\t \n]+INTO[\t \n]+http_users[\t \n]+")
-	fmt.Fprint(reqRegExp, "\\(id, name, lastname, birthdate\\)[\t \n]+")
-	fmt.Fprint(reqRegExp, "VALUES\\(DEFAULT,\\$1,\\$2,\\$3\\)[\t \n]*$")
+	fmt.Fprint(reqRegExp, "^INSERT INTO http_users ")
+	fmt.Fprint(reqRegExp, "\\(id, name, lastname, birthdate\\)[\n \t]+")
+	fmt.Fprint(reqRegExp, "VALUES\\(DEFAULT,\\$1,\\$2,\\$3\\)$")
 
 	ex := mock.ExpectExec(reqRegExp.String()).
 		WithArgs(test.user.Name, test.user.Lastname, test.user.Birthdate)
