@@ -17,6 +17,7 @@ type userResult struct {
 type userTestCase struct {
 	name    string
 	user    *model.User
+	id      int
 	repoRet userResult
 	want    userResult
 }
