@@ -48,6 +48,9 @@ func singleTestList(t *testing.T, test *userTestCase) {
 	users, err := service.List()
 	assert.Equal(t, test.want.err, err)
 	assert.Equal(t, test.want.users, users)
+
+	err = mock.ExpectationsWereMet()
+	assert.NoError(t, err)
 }
 
 func repoListExpectations(repository *mocks.MockUser, test *userTestCase) {

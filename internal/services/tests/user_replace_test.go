@@ -53,6 +53,9 @@ func singleTestReplace(t *testing.T, test *userTestCase) {
 
 	err := service.Replace(test.id, test.user)
 	assert.Equal(t, test.want.err, err)
+
+	err = mock.ExpectationsWereMet()
+	assert.NoError(t, err)
 }
 
 func repoReplaceExpectations(repository *mocks.MockUser, test *userTestCase) {

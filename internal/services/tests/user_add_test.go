@@ -50,6 +50,9 @@ func singleTestAdd(t *testing.T, test *userTestCase) {
 
 	err := service.Add(test.user)
 	assert.Equal(t, test.want.err, err)
+
+	err = mock.ExpectationsWereMet()
+	assert.NoError(t, err)
 }
 
 func repoAddExpectations(repository *mocks.MockUser, test *userTestCase) {

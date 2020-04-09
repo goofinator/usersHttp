@@ -50,6 +50,9 @@ func singleTestDelete(t *testing.T, test *userTestCase) {
 
 	err := service.Delete(test.id)
 	assert.Equal(t, test.want.err, err)
+
+	err = mock.ExpectationsWereMet()
+	assert.NoError(t, err)
 }
 
 func repoDeleteExpectations(repository *mocks.MockUser, test *userTestCase) {
