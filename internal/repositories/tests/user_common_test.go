@@ -17,6 +17,7 @@ type userResult struct {
 	err    error
 	users  []*model.User
 	result sql.Result
+	rows   *sql.Rows
 }
 
 type userTestCase struct {

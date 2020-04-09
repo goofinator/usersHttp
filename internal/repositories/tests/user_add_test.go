@@ -68,9 +68,7 @@ func singleTestAdd(t *testing.T, test *userTestCase) {
 	require.NoError(t, err)
 
 	err = repository.Add(tx, test.user)
-	if !assert.Equal(t, test.want.err, err) && test.want.err != nil {
-		assert.EqualError(t, err, test.want.err.Error())
-	}
+	assert.Equal(t, test.want.err, err)
 
 	err = tx.Commit()
 	require.NoError(t, err)

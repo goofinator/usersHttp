@@ -13,7 +13,7 @@ import (
 
 var userReplaceTests = []*userTestCase{
 	&userTestCase{
-		name: "insert fail",
+		name: "update fail",
 		id:   1,
 		user: validUser,
 		txRet: userResult{err: errSome,
@@ -72,9 +72,7 @@ func singleTestReplace(t *testing.T, test *userTestCase) {
 	require.NoError(t, err)
 
 	err = repository.Replace(tx, test.id, test.user)
-	if !assert.Equal(t, test.want.err, err) && test.want.err != nil {
-		assert.EqualError(t, err, test.want.err.Error())
-	}
+	assert.Equal(t, test.want.err, err)
 
 	err = tx.Commit()
 	require.NoError(t, err)
@@ -93,7 +91,7 @@ func sqlReplaceExpectations(mock sqlmock.Sqlmock, test *userTestCase) {
 	ex := mock.ExpectExec(reqRegExp.String()).
 		WithArgs(test.user.Name, test.user.Lastname, test.user.Birthdate, test.id)
 
-	if test.name == "insert fail" {
+	if test.name == "update fail" {
 		ex.WillReturnError(test.txRet.err)
 	} else {
 		ex.WillReturnResult(test.txRet.result)

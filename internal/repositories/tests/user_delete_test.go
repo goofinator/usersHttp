@@ -11,13 +11,15 @@ import (
 
 var userDeleteTests = []*userTestCase{
 	&userTestCase{
-		name: "insert fail",
+		name: "delete fail",
+		id:   1,
 		txRet: userResult{err: errSome,
 			result: sqlmock.NewResult(0, 1)},
 		want: userResult{err: errSome},
 	},
 	&userTestCase{
 		name: "0 rows",
+		id:   1,
 		txRet: userResult{
 			err:    nil,
 			result: sqlmock.NewResult(0, 0),
@@ -26,6 +28,7 @@ var userDeleteTests = []*userTestCase{
 	},
 	&userTestCase{
 		name: "2 rows",
+		id:   1,
 		txRet: userResult{
 			err:    nil,
 			result: sqlmock.NewResult(0, 2),
@@ -34,6 +37,7 @@ var userDeleteTests = []*userTestCase{
 	},
 	&userTestCase{
 		name: "success",
+		id:   1,
 		txRet: userResult{
 			err:    nil,
 			result: sqlmock.NewResult(0, 1),
@@ -62,9 +66,7 @@ func singleTestDelete(t *testing.T, test *userTestCase) {
 	require.NoError(t, err)
 
 	err = repository.Delete(tx, test.id)
-	if !assert.Equal(t, test.want.err, err) && test.want.err != nil {
-		assert.EqualError(t, err, test.want.err.Error())
-	}
+	assert.Equal(t, test.want.err, err)
 
 	err = tx.Commit()
 	require.NoError(t, err)
@@ -79,7 +81,7 @@ func sqlDeleteExpectations(mock sqlmock.Sqlmock, test *userTestCase) {
 	ex := mock.ExpectExec("DELETE FROM http_users WHERE id=\\$1").
 		WithArgs(test.id)
 
-	if test.name == "insert fail" {
+	if test.name == "delete fail" {
 		ex.WillReturnError(test.txRet.err)
 	} else {
 		ex.WillReturnResult(test.txRet.result)
