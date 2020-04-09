@@ -3,7 +3,6 @@ package services_test
 import (
 	"testing"
 
-	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/golang/mock/gomock"
 	"github.com/goofinator/usersHttp/internal/repositories/mocks"
 	"github.com/stretchr/testify/assert"
@@ -39,7 +38,7 @@ func singleTestList(t *testing.T, test *userTestCase) {
 	// You need a database lock to perform some database actions of service
 	mockDB, mock := iniSqlMock(t)
 	defer mockDB.Close()
-	sqlListExpectations(mock, test)
+	sqlExpectations(mock, test)
 
 	//You need a repository mock to process the service calls
 	mockController, repository, service := initService(t)
@@ -49,19 +48,6 @@ func singleTestList(t *testing.T, test *userTestCase) {
 	users, err := service.List()
 	assert.Equal(t, test.want.err, err)
 	assert.Equal(t, test.want.users, users)
-}
-
-func sqlListExpectations(mock sqlmock.Sqlmock, test *userTestCase) {
-	ex := mock.ExpectBegin()
-	if test.name == "begin fail" {
-		ex.WillReturnError(errSome)
-		return
-	}
-	if test.name == "repository fail" {
-		mock.ExpectRollback()
-		return
-	}
-	mock.ExpectCommit()
 }
 
 func repoListExpectations(repository *mocks.MockUser, test *userTestCase) {

@@ -4,6 +4,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/golang/mock/gomock"
 	"github.com/goofinator/usersHttp/internal/model"
 	"github.com/goofinator/usersHttp/internal/repositories/mocks"
@@ -53,4 +54,17 @@ func initService(t *testing.T) (*gomock.Controller, *mocks.MockUser, services.Us
 	repository := mocks.NewMockUser(mockController)
 	service := services.NewUser(repository)
 	return mockController, repository, service
+}
+
+func sqlExpectations(mock sqlmock.Sqlmock, test *userTestCase) {
+	ex := mock.ExpectBegin()
+	if test.name == "begin fail" {
+		ex.WillReturnError(errSome)
+		return
+	}
+	if test.name == "repository fail" {
+		mock.ExpectRollback()
+		return
+	}
+	mock.ExpectCommit()
 }

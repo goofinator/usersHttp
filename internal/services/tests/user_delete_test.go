@@ -3,7 +3,6 @@ package services_test
 import (
 	"testing"
 
-	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/golang/mock/gomock"
 	"github.com/goofinator/usersHttp/internal/repositories/mocks"
 	"github.com/stretchr/testify/assert"
@@ -42,7 +41,7 @@ func singleTestDelete(t *testing.T, test *userTestCase) {
 	// You need a database lock to perform some database actions of service
 	mockDB, mock := iniSqlMock(t)
 	defer mockDB.Close()
-	sqlDeleteExpectations(mock, test)
+	sqlExpectations(mock, test)
 
 	//You need a repository mock to process the service calls
 	mockController, repository, service := initService(t)
@@ -51,19 +50,6 @@ func singleTestDelete(t *testing.T, test *userTestCase) {
 
 	err := service.Delete(test.id)
 	assert.Equal(t, test.want.err, err)
-}
-
-func sqlDeleteExpectations(mock sqlmock.Sqlmock, test *userTestCase) {
-	ex := mock.ExpectBegin()
-	if test.name == "begin fail" {
-		ex.WillReturnError(errSome)
-		return
-	}
-	if test.name == "repository fail" {
-		mock.ExpectRollback()
-		return
-	}
-	mock.ExpectCommit()
 }
 
 func repoDeleteExpectations(repository *mocks.MockUser, test *userTestCase) {
