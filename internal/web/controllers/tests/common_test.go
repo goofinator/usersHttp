@@ -8,7 +8,7 @@ import (
 	"github.com/gorilla/mux"
 )
 
-var someError = errors.New("some error")
+var errSome = errors.New("some error")
 
 type handlingParams struct {
 	route  string

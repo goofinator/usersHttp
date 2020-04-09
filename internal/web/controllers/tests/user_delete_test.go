@@ -27,7 +27,7 @@ var testsDelete = []*commonUserTestCase{
 		url:        "/users/1",
 		wantStatus: http.StatusBadRequest,
 		wantBodyRE: "^some error",
-		mockRetErr: someError,
+		mockRetErr: errSome,
 	},
 	{
 		name:       "success",
