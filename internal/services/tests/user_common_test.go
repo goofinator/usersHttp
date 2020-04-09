@@ -11,7 +11,8 @@ import (
 )
 
 type userResult struct {
-	err error
+	err   error
+	users []*model.User
 }
 
 type userTestCase struct {
@@ -28,6 +29,23 @@ var validUser = &model.User{
 	Name:      "Vasya",
 	Lastname:  "Pupkin",
 	Birthdate: time.Now(),
+}
+
+var validUsers = []*model.User{
+	&model.User{
+		ID:        1,
+		Age:       2,
+		Name:      "Vasya",
+		Lastname:  "Pupkin",
+		Birthdate: time.Now(),
+	},
+	&model.User{
+		ID:        3,
+		Age:       4,
+		Name:      "Venya",
+		Lastname:  "Levkin",
+		Birthdate: time.Now(),
+	},
 }
 
 func initService(t *testing.T) (*gomock.Controller, *mocks.MockUser, services.User) {
