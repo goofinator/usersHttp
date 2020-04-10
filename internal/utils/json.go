@@ -4,23 +4,9 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"net/url"
-	"regexp"
-	"strconv"
-	"strings"
 
 	"github.com/goofinator/usersHttp/internal/model"
 )
-
-// IDFromURL extracts id from endpoints like: /users/:id
-func IDFromURL(url *url.URL) (int, error) {
-	uri := url.String()
-	re := regexp.MustCompile(`/:[0-9]+$`)
-	uri = re.FindString(uri)
-	uri = strings.TrimLeft(uri, "/:")
-
-	return strconv.Atoi(uri)
-}
 
 // DecodeUser decodes user from incoming json
 func DecodeUser(r io.Reader) (*model.User, error) {
