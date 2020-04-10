@@ -1,10 +1,13 @@
 package controllers
 
 import (
+	"encoding/json"
+	"fmt"
+	"io"
 	"net/http"
 
+	"github.com/goofinator/usersHttp/internal/model"
 	"github.com/goofinator/usersHttp/internal/services"
-	"github.com/goofinator/usersHttp/internal/utils"
 	"github.com/goofinator/usersHttp/internal/web/binders"
 	"github.com/gorilla/context"
 )
@@ -28,7 +31,7 @@ type user struct {
 
 // Add invokes user's service to store usere
 func (u *user) Add(w http.ResponseWriter, r *http.Request) {
-	user, err := utils.DecodeUser(r.Body)
+	user, err := decodeUser(r.Body)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
@@ -53,10 +56,8 @@ func (u *user) List(w http.ResponseWriter, r *http.Request) {
 	users, err := u.service.List()
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
 	}
-
-	if err := utils.EncodeUsers(w, users); err != nil {
+	if err := encodeUsers(w, users); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
 }
@@ -64,7 +65,7 @@ func (u *user) List(w http.ResponseWriter, r *http.Request) {
 // Replace invokes user's service to replace data of user with specified id
 func (u *user) Replace(w http.ResponseWriter, r *http.Request) {
 	id := context.Get(r, binders.ID).(int)
-	user, err := utils.DecodeUser(r.Body)
+	user, err := decodeUser(r.Body)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
@@ -74,4 +75,26 @@ func (u *user) Replace(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 	}
 
+}
+
+// DecodeUser decodes user from incoming json
+func decodeUser(r io.Reader) (*model.User, error) {
+	decoder := json.NewDecoder(r)
+	var user model.User
+
+	if err := decoder.Decode(&user); err != nil {
+		return nil, fmt.Errorf("error on json.Decode: %s", err)
+	}
+	return &user, nil
+}
+
+// EncodeUsers encode users to json
+func encodeUsers(w io.Writer, users []*model.User) error {
+	encoder := json.NewEncoder(w)
+	encoder.SetIndent("", "    ")
+
+	if err := encoder.Encode(users); err != nil {
+		return fmt.Errorf("error on jsonEncode: %s", err)
+	}
+	return nil
 }
