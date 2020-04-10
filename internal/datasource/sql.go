@@ -5,7 +5,7 @@ import (
 	"fmt"
 
 	"github.com/goofinator/usersHttp/internal/init/startup"
-	"github.com/goofinator/usersHttp/utils"
+	"github.com/goofinator/usersHttp/internal/utils"
 
 	//ini of pgx
 	_ "github.com/jackc/pgx/v4/stdlib"
