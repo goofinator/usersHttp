@@ -28,9 +28,9 @@ type user struct{}
 
 // Add inserts User in repository
 func (u *user) Add(tx *sql.Tx, user *model.User) error {
-	request := `INSERT INTO http_users 	(id, name, lastname, birthdate)
+	query := `INSERT INTO http_users 	(id, name, lastname, birthdate)
 	VALUES(DEFAULT,$1,$2,$3)`
-	result, err := tx.Exec(request, user.Name, user.Lastname, user.Birthdate)
+	result, err := tx.Exec(query, user.Name, user.Lastname, user.Birthdate)
 
 	if err := datasource.CheckResult(1, result, err); err != nil {
 		return err
@@ -40,8 +40,8 @@ func (u *user) Add(tx *sql.Tx, user *model.User) error {
 
 // Delete removes user from repository
 func (u *user) Delete(tx *sql.Tx, id int) error {
-	request := "DELETE FROM http_users WHERE id=$1"
-	result, err := tx.Exec(request, id)
+	query := "DELETE FROM http_users WHERE id=$1"
+	result, err := tx.Exec(query, id)
 
 	if err := datasource.CheckResult(1, result, err); err != nil {
 		return err
@@ -51,9 +51,9 @@ func (u *user) Delete(tx *sql.Tx, id int) error {
 
 // List returns all users from repository
 func (u *user) List(tx *sql.Tx) ([]*model.User, error) {
-	request := `SELECT id, name, lastname, birthdate, EXTRACT(YEAR FROM AGE(birthdate)) 
+	query := `SELECT id, name, lastname, birthdate, EXTRACT(YEAR FROM AGE(birthdate)) 
 	AS age FROM http_users ORDER BY ID`
-	rows, err := tx.Query(request)
+	rows, err := tx.Query(query)
 
 	users, err := processRows(rows, err)
 	if err != nil {
@@ -64,8 +64,8 @@ func (u *user) List(tx *sql.Tx) ([]*model.User, error) {
 
 // Replace put user's data in repository to Row with specified id
 func (u *user) Replace(tx *sql.Tx, id int, user *model.User) error {
-	request := `UPDATE http_users SET name=$1, lastname=$2, birthdate=$3 WHERE id=$4`
-	result, err := tx.Exec(request, user.Name, user.Lastname, user.Birthdate, id)
+	query := `UPDATE http_users SET name=$1, lastname=$2, birthdate=$3 WHERE id=$4`
+	result, err := tx.Exec(query, user.Name, user.Lastname, user.Birthdate, id)
 
 	if err := datasource.CheckResult(1, result, err); err != nil {
 		return err
